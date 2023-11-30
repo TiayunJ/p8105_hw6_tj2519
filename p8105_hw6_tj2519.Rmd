@@ -51,8 +51,6 @@ bootboot_straps_results =
   select(-strap_sample, -models) %>% 
   unnest(results, r_sq) %>% 
   janitor::clean_names()
-
-
   
 ```
 
@@ -80,4 +78,12 @@ bootboot_straps_results %>%
          log_ci_upper = quantile(log_value, 0.975, na.rm = TRUE)) %>% 
   knitr::kable()
 ```
+
+
+
+# Problem 3
+```{r}
+
+```
+
 
