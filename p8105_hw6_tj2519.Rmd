@@ -7,6 +7,7 @@ date: "2023-11-29"
 ```{r}
 library(tidyverse)
 library(p8105.datasets)
+set.seed(1)
 ```
 
 # Problem 2
@@ -29,7 +30,7 @@ boot_sample = function(df) {
 }
 
 bootboot_straps = 
-  tibble(strap_number = 1:500) |> 
+  tibble(strap_number = 1:10) |> 
   mutate(
     strap_sample = map(strap_number, \(df) boot_sample(weather_df))
   )
@@ -71,12 +72,13 @@ bootboot_straps_results %>%
 ```
 
 
-
+## Compute 95% CI for r^2 and log(beta1*beta2)
 ```{r}
-
-
-
-  mutate(ci_lower = map_dbl(estimate, quantile(0.025)),
-         ci_upper = map_dbl(estimate, quantile(0.975))) 
+bootboot_straps_results %>% 
+  group_by(strap_number) %>% 
+  summarize(r_ci_lower = quantile(r_squared, 0.025),
+         r_ci_upper = quantile(r_squared, 0.975),
+         log_ci_lower = quantile(log_value, 0.025, na.rm = TRUE),
+         log_ci_upper = quantile(log_value, 0.975, na.rm = TRUE))
 ```
 
