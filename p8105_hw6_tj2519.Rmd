@@ -38,4 +38,20 @@ bootboot_straps$strap_sample[[1]]
 ```
 
 
+## Run Linear Regression to the samples
+```{r}
+bootboot_straps_results =
+  bootboot_straps %>% 
+  mutate(
+    models = map(strap_sample, \(df) lm(tmax ~ tmin + prcp, data = df)),
+    results = map(models, broom::tidy),
+    r_sq = map(models, broom::glance)) %>% 
+  mutate(r_sq = map(r_sq, ~ .x %>% select(r.squared))) %>% 
+  select(-strap_sample, -models) %>% 
+  unnest(results, r_sq) 
+
+
+                
+   
+```
 
