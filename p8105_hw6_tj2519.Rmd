@@ -101,7 +101,7 @@ problem3_df =
 model_1 = lm(bwt ~ blength + gaweeks, data = problem3_df) %>% 
   broom::tidy()
   
-model_2 = lm(bwt ~ bhead + blength + babysex, data = problem3_df) %>% 
+model_2 = lm(bwt ~ bhead * blength * babysex, data = problem3_df) %>% 
   broom::tidy()
 
 
