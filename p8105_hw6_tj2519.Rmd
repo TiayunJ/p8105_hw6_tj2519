@@ -82,11 +82,12 @@ bootboot_straps_results %>%
 
 
 # Problem 3
-## Load the dataset and clean it
+## Load the dataset and clean it, drop any NA values, so it would be easier in later building regression model parts
 ```{r}
 problem3_df = 
   read_csv("data/birthweight.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  drop_na()
 
 
 ```
@@ -104,7 +105,7 @@ problem3_df %>%
 model_1 = lm(bwt ~ blength + gaweeks, data = problem3_df) %>% 
   broom::tidy()
   
-model_2 =  
+model_2 = 
 
 
 ```
