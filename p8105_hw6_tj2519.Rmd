@@ -82,8 +82,11 @@ bootboot_straps_results %>%
 
 
 # Problem 3
+## Load the dataset and clean it
 ```{r}
-
+problem3_df = 
+  read_csv("data/birthweight.csv") %>% 
+  janitor::clean_names()
 ```
 
 
