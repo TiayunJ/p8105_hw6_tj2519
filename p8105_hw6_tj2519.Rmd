@@ -87,25 +87,22 @@ bootboot_straps_results %>%
 problem3_df = 
   read_csv("data/birthweight.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na()
-
+  drop_na() %>% 
+  mutate(babysex = recode(babysex, `1` = "male",
+                          `2` = "female"),
+         babysex = fct_relevel(babysex, c("male", "female"))) %>% 
+  
+  
 
 ```
 
 ## Run Linear regression with length at birth and gestational age as predictors (main effects only)
 ```{r}
-problem3_df %>% 
-  select(blength) %>% 
-  filter(is.na(blength))
-
-problem3_df %>% 
-  select(gaweeks) %>% 
-  filter(is.na(gaweeks))
-
 model_1 = lm(bwt ~ blength + gaweeks, data = problem3_df) %>% 
   broom::tidy()
   
-model_2 = 
+model_2 = lm(bwt ~ bhead + blength + babysex, data = problem3_df) %>% 
+  broom::tidy()
 
 
 ```
