@@ -71,14 +71,13 @@ bootboot_straps_results %>%
   
 ```
 
-
 ## Compute 95% CI for r^2 and log(beta1*beta2)
 ```{r}
 bootboot_straps_results %>% 
-  group_by(strap_number) %>% 
-  summarize(r_ci_lower = quantile(r_squared, 0.025),
-         r_ci_upper = quantile(r_squared, 0.975),
+  summarize(r_sq_ci_lower = quantile(r_squared, 0.025),
+         r_sq_ci_upper = quantile(r_squared, 0.975),
          log_ci_lower = quantile(log_value, 0.025, na.rm = TRUE),
-         log_ci_upper = quantile(log_value, 0.975, na.rm = TRUE))
+         log_ci_upper = quantile(log_value, 0.975, na.rm = TRUE)) %>% 
+  knitr::kable()
 ```
 
