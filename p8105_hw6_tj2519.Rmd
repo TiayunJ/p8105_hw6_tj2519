@@ -27,5 +27,15 @@ weather_df =
 boot_sample = function(df) {
   sample_frac(df, replace = TRUE)
 }
+
+bootboot_straps = 
+  tibble(strap_number = 1:10) |> 
+  mutate(
+    strap_sample = map(strap_number, \(df) boot_sample(weather_df))
+  )
+
+bootboot_straps$strap_sample[[1]]
 ```
+
+
 
