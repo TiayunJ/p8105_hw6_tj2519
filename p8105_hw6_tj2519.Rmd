@@ -38,7 +38,7 @@ bootboot_straps$strap_sample[[1]]
 ```
 
 
-## Run Linear Regression to the samples
+## Run Linear Regression to the samples and calculate the log(β̂ 1∗β̂ 2) and r̂ 2
 ```{r}
 bootboot_straps_results =
   bootboot_straps %>% 
@@ -46,12 +46,22 @@ bootboot_straps_results =
     models = map(strap_sample, \(df) lm(tmax ~ tmin + prcp, data = df)),
     results = map(models, broom::tidy),
     r_sq = map(models, broom::glance)) %>% 
+  mutate(b = map_dbl(results, ~log(.x[[2]][[2]] * .x[[2]][[3]]))) %>% 
   mutate(r_sq = map(r_sq, ~ .x %>% select(r.squared))) %>% 
   select(-strap_sample, -models) %>% 
   unnest(results, r_sq) 
+  
+
+ bootboot_straps_results %>% view() 
+  
+  
 
 
-                
-   
+
+  mutate(ci_lower = map_dbl(estimate, quantile(0.025)),
+         ci_upper = map_dbl(estimate, quantile(0.975))) 
+
+
+           
 ```
 
