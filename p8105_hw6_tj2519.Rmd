@@ -112,9 +112,14 @@ problem3_df =
 
 ```
 
-## Create own model
+## Create own model using stepwise method. 
+### In this method, I used 'step' function in R. By using the stepwise method, the algorithm would build a linear regression model based on all the variables available in the dataset. By default, step function build the final model based on both the forward (start with intercept only) and backward method (start with all the covariates), till the default criterion - AIC value of the model could not be improved.
 ```{r}
+crude_model = lm(bwt ~ ., data = problem3_df)
+final_model = step(initial_model)
 
+model_results = summary(final_model) %>% 
+    broom::tidy()
 ```
 
 
