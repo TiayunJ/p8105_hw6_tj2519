@@ -7,6 +7,8 @@ date: "2023-11-29"
 ```{r}
 library(tidyverse)
 library(p8105.datasets)
+library(modelr)
+library(mgcv)
 
 ```
 
@@ -110,34 +112,41 @@ problem3_df =
          mrace = fct_infreq(mrace),
          malform = fct_relevel(malform, c("absent", "present")),
          ) 
-  
-
+  ?
 ```
 
 ## Create own model using stepwise method. 
-### In this method, I used 'step' function in R. By using the stepwise method, the algorithm would build a linear regression model based on all the variables available in the dataset. By default, step function build the final model based on both the forward (start with intercept only) and backward method (start with all the covariates), till the default criterion - AIC value of the model could not be improved.
+### In this method, I used 'step' function in R. By using the stepwise method, the algorithm would build a linear regression model based on all the variables available in the dataset. By default, step function build the final model based on both the forward (start with intercept only) and backward method (start with all the covariates), till the default criterion - AIC value of the model could not be improved. Also write a function to create this model.
 ```{r}
 crude_model = lm(bwt ~ ., data = problem3_df)
-final_model = step(initial_model)
+final_model = step(crude_model)
 
 model_results = summary(final_model) %>% 
     broom::tidy()
 
+own_model_function = function(data){
+  step(lm(bwt ~ ., data = data), direction = "both")
+}
+
 ```
 
-## Plot with residual and prediction
+
+## Plot with residual and prediction based on the created linear model with the outcome being birthweight
 ```{r}
 problem3_df %>% 
   modelr::add_residuals(final_model) %>% 
   modelr::add_predictions(final_model) %>% 
   ggplot(aes(x = pred, y = resid)) +
-  geom_point(alpha = 0.3) 
+  geom_point(alpha = 0.3) +
+  labs(x = "fitted value",
+       y = "residuals",
+       title = "The Scatterplot plotting model residuals against fitted values")
 ```
 
 
 
 
-## Run Linear regression with length at birth and gestational age as predictors (main effects only)
+## Run Linear regression with length at birth and gestational age as predictors (main effects only), and the other regression using head circumference, length, sex, and all interactions (including the three-way interaction) between these.
 ```{r}
 model_1 = lm(bwt ~ blength + gaweeks, data = problem3_df) %>% 
   broom::tidy()
@@ -146,5 +155,41 @@ model_2 = lm(bwt ~ bhead * blength * babysex, data = problem3_df) %>%
   broom::tidy()
 
 ```
+
+
+## Cross-validation and compare the models using RMSE in each model
+```{r}
+cv_df = 
+  crossv_mc(problem3_df, 50)
+
+comparison = 
+cv_df %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)) %>% 
+  mutate(
+    own_mod  = map(train, own_model_function),
+    model_1 = map(train, \(df) lm(bwt ~ blength + gaweeks, data = df)),
+    model_2 = map(train, \(df) lm(bwt ~ bhead * blength * babysex, data = df))) %>% 
+  mutate(
+    rmse_own = map2_dbl(own_mod, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_model_1 = map2_dbl(model_1, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_model_2 = map2_dbl(model_2, test, \(mod, df) rmse(model = mod, data = df)))
+  
+
+comparison  %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
+
+```
+The RMSE indicates that the own model has the smallest RMSE, while the model_1 containing length at birth and gestational age as predictors (main effects only) has the highest RMSE, the RMSE of model_2 using head circumference, length, sex, and all interactions (including the three-way interaction) between these is between the own model and model_1. Among the three models, the RMSE of model_1 is the most spreaded.
+
+
 
 
