@@ -7,7 +7,7 @@ date: "2023-11-29"
 ```{r}
 library(tidyverse)
 library(p8105.datasets)
-set.seed(1)
+
 ```
 
 # Problem 2
@@ -30,7 +30,7 @@ boot_sample = function(df) {
 }
 
 bootboot_straps = 
-  tibble(strap_number = 1:10) |> 
+  tibble(strap_number = 1:5000) |> 
   mutate(
     strap_sample = map(strap_number, \(df) boot_sample(weather_df))
   )
@@ -68,6 +68,8 @@ bootboot_straps_results %>%
   labs(title = "Distribution of log(beta1*beta2) Across the Samples")
   
 ```
+From the density plot showing the distribution of r^2, it was noticed that the most frequent r^2 appears around 0.92, and the shape is left-skewed (but roughly normal). r^2 = 0.92 It means that 92% of the variance in tmax is explained by tmin. As there are NaNs values in log(beta1*beta2) because the value of beta1*beta2 could be negative, and log calcumation could not take negtative value. The density plot of the remaining log_values is left skewed and the most frequent value of log(beta1*beta2) appears to be around -5.6. 
+
 
 ## Compute 95% CI for r^2 and log(beta1*beta2)
 ```{r}
@@ -82,7 +84,7 @@ bootboot_straps_results %>%
 
 
 # Problem 3
-## Load the dataset and clean it, drop any NA values, so it would be easier in later building regression model parts
+## Load the dataset and clean it, drop any NA values, so it would be easier in later building regression model parts. Also, I recoded certain variables and transform them into factors.
 ```{r}
 problem3_df = 
   read_csv("data/birthweight.csv") %>% 
