@@ -122,7 +122,18 @@ final_model = step(initial_model)
 
 model_results = summary(final_model) %>% 
     broom::tidy()
+
 ```
+
+## Plot with residual and prediction
+```{r}
+problem3_df %>% 
+  modelr::add_residuals(final_model) %>% 
+  modelr::add_predictions(final_model) %>% 
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point(alpha = 0.3) 
+```
+
 
 
 
